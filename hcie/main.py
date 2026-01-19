@@ -1,4 +1,4 @@
-from hcie.vehicle_search import VehicleSearch
+from hcie.database_search import DatabaseSearch
 
 import argparse
 
@@ -22,7 +22,7 @@ def main():
     args = get_args()
     smiles = args.smiles
     name = args.name
-    search = VehicleSearch(smiles, name=name)
+    search = DatabaseSearch(smiles, name=name)
     search.search()
 
 

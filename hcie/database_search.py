@@ -22,10 +22,10 @@ def load_database():
 with importlib.resources.files("Data").joinpath("mobivic_by_hash.json").open(
     "r"
 ) as json_file:
-    vehicle_by_hash = json.load(json_file)
+    database_by_hash = json.load(json_file)
 
 
-class VehicleSearch:
+class DatabaseSearch:
     def __init__(
         self,
         smiles: Optional[str] = None,
@@ -61,8 +61,8 @@ class VehicleSearch:
         self.esp_weight = esp_weighting
 
         if self.query_hash is not None:
-            self.hash_matches = self.search_vehicle_by_hash()
-            self.vehicle_vector_matches = {}
+            self.hash_matches = self.search_database_by_hash()
+            self.database_vector_matches = {}
             self.search_type = "hash"
         elif self.query_hash is None and len(self.query.user_vectors) > 0:
             self.search_type = "vector"
@@ -97,7 +97,7 @@ class VehicleSearch:
 
             # Two-vector search
             elif self.search_type == "hash":
-                self.vehicle_vector_matches = self.get_exit_vectors_for_hash_matches(
+                self.database_vector_matches = self.get_exit_vectors_for_hash_matches(
                     database_by_regid
                 )
                 results, mols = self.align_and_score_hash_matches_pooled(
@@ -284,25 +284,25 @@ class VehicleSearch:
             probe,
         ]
 
-    def search_vehicle_by_hash(self) -> list:
+    def search_database_by_hash(self) -> list:
         """
         Two-vector alignment logic.
 
-        Search the vehicle database by hash
+        Search the database by hash
         :return: list of regids matched by hash
         """
-        return vehicle_by_hash[self.query_hash]
+        return database_by_hash[self.query_hash]
 
     def get_exit_vectors_for_hash_matches(self, database_by_regid: dict) -> dict:
         """
         Two-vector alignment logic.
 
-        For each of the VEHICLe results found by matching the query hash to those of the VEHICLe hashes, get the atom
+        For each of the database results found by matching the query hash to those of the database hashes, get the atom
         IDs of the bonds that correspond to the hash match.
 
         For example:
             Query Hash = 00111011
-            A search against VEHICLe reveals 4268 matches, one of which is S230.
+            A search against a database reveals 4268 matches, one of which is S230.
             This function will return the atom IDs in S230 that correspond to the hash
                     00111011 =  ((0,8), (3,10))
                                 ((1,9), (4, 11))
@@ -320,7 +320,7 @@ class VehicleSearch:
             for match in self.hash_matches
         }
 
-    def align_and_score_vehicle_molecule(
+    def align_and_score_database_molecule(
         self, regid: str, vector_pairs: list, database_by_regid: dict
     ) -> list:
         """
@@ -373,7 +373,7 @@ class VehicleSearch:
         ]
 
     def align_and_score_molecule_wrapper(self, args):
-        return self.align_and_score_vehicle_molecule(*args)
+        return self.align_and_score_database_molecule(*args)
 
     def align_and_score_hash_matches_pooled(
         self, database_by_regid: dict
@@ -395,18 +395,18 @@ class VehicleSearch:
         List of results, sorted by highest total score, and dictionary of Molecule objects for the processed molecules.
         """
 
-        print(f"Aligning to {len(self.vehicle_vector_matches)} vector matches")
+        print(f"Aligning to {len(self.database_vector_matches)} vector matches")
 
         with multiprocessing.Pool() as pool:
             task_args = [
                 (match_regid, vector_pairs, database_by_regid)
-                for match_regid, vector_pairs in self.vehicle_vector_matches.items()
+                for match_regid, vector_pairs in self.database_vector_matches.items()
             ]
             results = list(
                 pool.imap_unordered(
                     self.align_and_score_molecule_wrapper,
                     task_args,
-                    chunksize=len(self.vehicle_vector_matches) // 8 + 1,
+                    chunksize=len(self.database_vector_matches) // 8 + 1,
                 )
             )
 

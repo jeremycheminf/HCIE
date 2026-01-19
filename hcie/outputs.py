@@ -40,7 +40,7 @@ def new_directory(func):
 @new_directory
 def print_results(mol_dict: dict, results: list, query_smiles: str, query_name: str) -> None:
     """
-    Prints out the results of a search against the VEHICLe database.
+    Prints out the results of a search against a database.
     :param mol_dict:
     :param results:
     :param query_smiles:

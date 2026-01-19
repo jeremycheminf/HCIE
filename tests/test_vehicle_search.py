@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 
 from hcie.molecule import Molecule
 from hcie.alignment import AlignmentTwoVector
-from hcie.vehicle_search import VehicleSearch
+from hcie.database_search import DatabaseSearch
 
 
 # Test constructor initialization
@@ -12,7 +12,7 @@ class TestOneVectorVehicleSearch(unittest.TestCase):
     def setUp(self):
         self.smiles = "[R]c1ccccn1"
         self.name = "ortho-pyridine"
-        self.search_instance = VehicleSearch(self.smiles, self.name)
+        self.search_instance = DatabaseSearch(self.smiles, self.name)
         # mock data for database_by_regid
         self.database_by_regid = {
             "S17": {"smiles": "O=c1[nH]cc[nH]1"},
@@ -40,9 +40,9 @@ class TestOneVectorVehicleSearch(unittest.TestCase):
         self.assertEqual(self.search_instance.query.user_vectors, ((1, 0),))
         self.assertIsInstance(self.search_instance.query.coords, np.ndarray)
 
-    @patch.object(VehicleSearch, "results_to_file")
-    @patch.object(VehicleSearch, "align_and_score_vector_matches")
-    @patch.object(VehicleSearch, "align_and_score_hash_matches_pooled")
+    @patch.object(DatabaseSearch, "results_to_file")
+    @patch.object(DatabaseSearch, "align_and_score_vector_matches")
+    @patch.object(DatabaseSearch, "align_and_score_hash_matches_pooled")
     @patch("hcie.vehicle_search.load_database")
     def test_search(
         self,
@@ -60,7 +60,7 @@ class TestOneVectorVehicleSearch(unittest.TestCase):
         mock_results_to_file.assert_called_once()
 
     @patch.object(
-        VehicleSearch, "align_and_score_probe_by_vector", return_value="mock_result"
+        DatabaseSearch, "align_and_score_probe_by_vector", return_value="mock_result"
     )
     def test_align_and_score_probe_by_vector_wrapper(
         self, mock_align_and_score_probe_by_vector
@@ -158,7 +158,7 @@ class TestTwoVectorVehicleSearch(unittest.TestCase):
     def setUp(self):
         self.smiles = "[*:1]c1cccc2c1ccn2[*:2]"
         self.name = "indole"
-        self.search_instance = VehicleSearch(self.smiles, self.name)
+        self.search_instance = DatabaseSearch(self.smiles, self.name)
         # mock data for database_by_regid
         self.database_by_regid = test_dict
 
@@ -170,10 +170,10 @@ class TestTwoVectorVehicleSearch(unittest.TestCase):
         self.assertEqual(self.search_instance.charge_type, "Gasteiger")
         self.assertEqual(self.search_instance.search_type, "hash")
 
-    @patch.object(VehicleSearch, "results_to_file")
-    @patch.object(VehicleSearch, "get_exit_vectors_for_hash_matches")
-    @patch.object(VehicleSearch, "align_and_score_vector_matches")
-    @patch.object(VehicleSearch, "align_and_score_hash_matches_pooled")
+    @patch.object(DatabaseSearch, "results_to_file")
+    @patch.object(DatabaseSearch, "get_exit_vectors_for_hash_matches")
+    @patch.object(DatabaseSearch, "align_and_score_vector_matches")
+    @patch.object(DatabaseSearch, "align_and_score_hash_matches_pooled")
     @patch("hcie.vehicle_search.load_database")
     def test_search(
         self,
@@ -209,7 +209,7 @@ class TestTwoVectorVehicleSearch(unittest.TestCase):
             )
 
     @patch(
-        "hcie.vehicle_search.vehicle_by_hash",
+        "hcie.vehicle_search.database_by_hash",
         {
             "00111011": ["S17", "S49", "S278"],
             "00010011": ["S23050"],
@@ -217,20 +217,20 @@ class TestTwoVectorVehicleSearch(unittest.TestCase):
         },
     )
     def test_search_vehicle_by_hash(self):
-        hash_matches = self.search_instance.search_vehicle_by_hash()
+        hash_matches = self.search_instance.search_database_by_hash()
         self.assertIsInstance(hash_matches, list)
         self.assertEqual(len(hash_matches), 3)
 
         with patch.object(self.search_instance, "query_hash", "11111111"):
             with self.assertRaises(KeyError):
-                self.search_instance.search_vehicle_by_hash()
+                self.search_instance.search_database_by_hash()
 
     def test_align_and_score_vehicle_molecule(self):
         vector_pairs = [
             vector["vectors"]
             for vector in self.database_by_regid["S290"]["exit_vectors"]["00111011"]
         ]
-        result = self.search_instance.align_and_score_vehicle_molecule(
+        result = self.search_instance.align_and_score_database_molecule(
             regid="S290",
             vector_pairs=vector_pairs,
             database_by_regid=self.database_by_regid,
@@ -241,7 +241,7 @@ class TestTwoVectorVehicleSearch(unittest.TestCase):
         self.assertIsInstance(result[-1], Molecule)
 
     @patch.object(
-        VehicleSearch, "align_and_score_vehicle_molecule", return_value="mock_return"
+        DatabaseSearch, "align_and_score_vehicle_molecule", return_value="mock_return"
     )
     def test_align_and_score_molecule_wrapper(self, mock_align_and_score):
         args = ("RegID", [1, 2], self.database_by_regid)

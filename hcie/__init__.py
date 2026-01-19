@@ -1,2 +1,2 @@
-from hcie.vehicle_search import VehicleSearch
+from hcie.database_search import DatabaseSearch
 from hcie.molecule import Molecule
