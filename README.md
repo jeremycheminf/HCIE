@@ -16,7 +16,7 @@ top-scoring matches by:
 - Aligning probe molecules to the query via exit vector matching.
 - Scoring the alignment based on shape and ESP similarity.
 - Sorting and returning the top alignments.
-- Exporting results to `.txt`, `.sdf`, and `.png` for further analysis.
+- Exporting results to `.csv`, `.sdf`, and `.png` for further analysis.
 
 This enables rapid identification of novel scaffold replacements that preserve key spatial features important for bioactivity
 
@@ -72,9 +72,9 @@ is very useful for generating SMILES expressions. Within a Python script (or ses
 ```python```) run the following:
 
 ```aiignore
-from hcie import VehicleSearch
+from hcie import DatabaseSearch
 
-search = VehicleSearch('<INSERT SMILES HERE>', name='<INSERT NAME HERE>')
+search = DatabaseSearch('<INSERT SMILES HERE>', name='<INSERT NAME HERE>')
 search.search()
 ```
 
@@ -85,21 +85,21 @@ will be deposited in a directory NAME_hcie_results, with the following structure
 ├── NAME_hcie_results
 │   ├── NAME_aligned_results.sdf
 │   ├── NAME_results.png
-│   ├── NAME_results.txt
+│   ├── NAME_results.csv
 ```
-| File Name                  | Description                                                                                                                                                                                                                                           |
-|----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `NAME_aligned_results.sdf` | The 3D structures of the top 50 highest-scoring ligands, aligned to the query ligand in the alignment of highest similarity.                                                                                                                          |
-| `NAME_results.png`         | Grid image of the structures of the top 50 returned molecules for easy inspection.                                                                                                                                                                    |
-| `NAME_results.txt`         | Tab-delimited file containing scores (shape, ESP, total), conformer info, and SMILES <br/>for each ligand in the searched library, ordered by total score. The exit-vectors are illustrated in the SMILES strings for ease of downstream enumeration. |
+| File Name                  | Description                                                                                                                                                                                                                                                                                                |
+|----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `NAME_aligned_results.sdf` | The 3D structures of the top 50 highest-scoring ligands, aligned to the query ligand in the alignment of highest similarity.                                                                                                                                                                               |
+| `NAME_results.png`         | Grid image of the structures of the top 50 returned molecules for easy inspection.                                                                                                                                                                                                                         |
+| `NAME_results.csv`         | Comma separated values file containing scores (shape, ESP, total), fragment-level physicochemical descriptors, conformer info, and SMILES <br/>for each ligand in the searched library, ordered by total score. The exit-vectors are illustrated in the SMILES strings for ease of downstream enumeration. |
 
 ### One-Vector Example
 <img src="assets/one_vector.png" alt="drawing" width="600"/>
 
 ```aiignore
-from hcie import VehicleSearch
+from hcie import DatabaseSearch
 
-search = VehicleSearch('[R]c1ccccn1', name='2-pyridine')
+search = DatabaseSearch('[R]c1ccccn1', name='2-pyridine')
 search.search()
 ```
 
@@ -107,9 +107,9 @@ search.search()
 <img src="assets/two_vector.png" alt="drawing" width="600"/>
 
 ```aiignore
-from hcie import VehicleSearch
+from hcie import DatabaseSearch
 
-search = VehicleSearch('[R]c2ccn1ncc([R])c1n2', name='repotrectinib')
+search = DatabaseSearch('[R]c2ccn1ncc([R])c1n2', name='repotrectinib')
 search.search()
 ```
 
