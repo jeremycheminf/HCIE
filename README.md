@@ -1,4 +1,5 @@
 # The Heterocycle Isostere Explorer
+[![DOI](https://img.shields.io/badge/DOI-10.1021/acs.jmedchem.5c03118-blue)](https://doi.org/10.1021/acs.jmedchem.5c03118)
 ## Introduction
 This is a cheminformatics tool developed in the Brennan Group at the Centre for Medicines Discovery in the University 
 of Oxford for the discovery of novel aromatic heterocyclic bioisosteres. **HCIE** identifies and ranks bioisosteric 
@@ -33,17 +34,17 @@ This enables rapid identification of novel scaffold replacements that preserve k
 The Python dependencies are listed in requirements.txt, and are best satisfied using a Conda installation ([miniconda](https://docs.anaconda.com/miniconda/miniconda-install/) 
 or [anaconda](https://docs.anaconda.com/anaconda/install/))
 
-### Installation Instructions
-Clone this repo
-```bash
-git clone https://github.com/BrennanGroup/HCIE
-```
+### Recommended: Download the Official Release
 
-Change directory to the cloned repo
-```bash
-cd HCIE
-```
-Note: If you are unsure about changing directories using the command line, follow instructions [here](https://www.wikihow.com/Change-Directories-in-Command-Prompt)).
+The version of HCIE used in the [Journal of Medicinal Chemistry](https://pubs.acs.org/doi/10.1021/acs.jmedchem.5c03118) publication is available as an official release on GitHub.
+
+**Download the latest stable release (.zip) here:**
+[https://github.com/BrennanGroup/HCIE/releases/tag/v1.2.0](https://github.com/BrennanGroup/HCIE/releases/tag/v1.2.0)
+
+1. Go to the [latest release](https://github.com/BrennanGroup/HCIE/releases/tag/v1.2.0).
+2. Under **Assets**, click **Source code (zip)**.
+3. Extract the downloaded file (this will be a .zip file in your downloads, clicking on it should normally unpack it).
+4. Open a terminal and navigate into the extracted folder
 
 It is highly advisable to create a new virtual environment for this package. If using conda, this can be achieved 
 using
@@ -61,6 +62,17 @@ When in the folder, run the following to install **HCIE** into the virtual envir
 pip install .
 ``` 
 
+### For Advanced Users (Developer Installation)
+If you would like the full development version of the repository, including version history and the ability to contribute, you may clone the repository:
+```bash
+git clone https://github.com/BrennanGroup/HCIE
+```
+
+Change directory to the cloned repo
+```bash
+cd HCIE
+```
+Note: Cloning will retrieve the latest development version, which may differ from that published in the paper.
 ## Usage
 
 Once the package has been installed into the virtual environment, it can be run from any directory as long as the 
@@ -114,6 +126,15 @@ search.search()
 ```
 
 ---
+## 📖 Citation
+
+If you use **The Heterocycle Isostere Explorer (HCIE)** in your research, please cite:
+
+**Holland, Matthew T. O.; Sebastián-Pérez, V.; Bradley, A. R.; Duarte, F.; Brennan, P. E.**  
+The Heterocycle Isostere Explorer: A Computational Tool for the Discovery of Novel Aromatic Heterocyclic Isosteres. *J. Med. Chem.*  
+https://doi.org/10.1021/acs.jmedchem.5c03118
+
+The version of HCIE used in this publication corresponds to release `v1.2.0`.
 ## Contributing
 We welcome contributions to HCIE!
 
