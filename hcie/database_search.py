@@ -11,7 +11,7 @@ from hcie.outputs import print_results, alignments_to_sdf, mols_to_image
 
 # Load full database into memory
 def load_database():
-    with importlib.resources.files("Data").joinpath(
+    with importlib.resources.files("hcie").joinpath("Data").joinpath(
         "MoBiVic_2.json"
     ).open("r") as json_file:
         data = json.load(json_file)
@@ -19,7 +19,7 @@ def load_database():
 
 
 # Load dictionary looking up molecules by hash
-with importlib.resources.files("Data").joinpath("mobivic_by_hash.json").open(
+with importlib.resources.files("hcie").joinpath("Data").joinpath("mobivic_by_hash.json").open(
     "r"
 ) as json_file:
     database_by_hash = json.load(json_file)
