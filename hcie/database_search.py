@@ -19,9 +19,9 @@ def load_database():
 
 
 # Load dictionary looking up molecules by hash
-with importlib.resources.files("hcie").joinpath("Data").joinpath("mobivic_by_hash.json").open(
-    "r"
-) as json_file:
+with importlib.resources.files("hcie").joinpath("Data").joinpath(
+    "mobivic_by_hash.json"
+).open("r") as json_file:
     database_by_hash = json.load(json_file)
 
 
@@ -35,6 +35,9 @@ class DatabaseSearch:
         shape_weighting: float = 0.5,
         esp_weighting: float = 0.5,
         xyz_block: Optional[str] = None,
+        output_dir: Optional[str] = None,
+        write_files: bool = True,
+        return_rdkit_mols: bool = False,
     ):
         if not smiles and not xyz_block:
             raise ValueError("Either SMILES or an XYZ block must be provided")
@@ -55,10 +58,13 @@ class DatabaseSearch:
             else None
         )
 
-        self.charge_type = "Gasteiger" #if charges is None else "orca_charges"
+        self.charge_type = "Gasteiger"  # if charges is None else "orca_charges"
         self.query_charges = charges
         self.shape_weight = shape_weighting
         self.esp_weight = esp_weighting
+        self.output_dir = output_dir
+        self.write_files = write_files
+        self.return_rdkit_mols = return_rdkit_mols
 
         if self.query_hash is not None:
             self.hash_matches = self.search_database_by_hash()
@@ -84,7 +90,7 @@ class DatabaseSearch:
             2. Carry out the required search, and collect the results
             3. Print the results and the alignments to file, ordered from highest scoring to lowest scoring.
             4. Print the requested number of alignments to SDF file.
-        :return: None
+        :return: None or list of RDKit molecules if return_rdkit_mols is True
         """
         print(f"Searching for {self._query_label()}")
         start = time.time()
@@ -107,14 +113,20 @@ class DatabaseSearch:
             else:
                 raise ValueError("Search type not supported")
 
-        self.results_to_file(results, mols)
+        if self.write_files:
+            self.results_to_file(results, mols, output_dir=self.output_dir)
 
         finish = time.time()
         print(f"Search completed in {round(finish - start, 2)} seconds")
 
+        if self.return_rdkit_mols:
+            return self._collect_rdkit_mols(results, mols)
+
         return None
 
-    def results_to_file(self, results: list, mols: dict) -> None:
+    def results_to_file(
+        self, results: list, mols: dict, output_dir: Optional[str] = None
+    ) -> None:
         """
         Prints the results of the search to a txt/csv file, the alignments to an sdf file, and generates a png image
         of the top 50 mols returned for ease of viewing.
@@ -128,16 +140,51 @@ class DatabaseSearch:
         None
         """
         mols["query"] = self.query
-        query_label = self.query.smiles if self.query.smiles else f"<XYZ:{self.query.name or 'query'}>"
+        query_label = (
+            self.query.smiles
+            if self.query.smiles
+            else f"<XYZ:{self.query.name or 'query'}>"
+        )
         print_results(
-            mols, results, query_smiles=query_label, query_name=self.query.name
+            mols,
+            results,
+            query_smiles=query_label,
+            query_name=self.query.name,
+            output_dir=output_dir,
         )
         alignments_to_sdf(
-            results=results, mol_alignments=mols, query_name=self.query.name
+            results=results,
+            mol_alignments=mols,
+            query_name=self.query.name,
+            output_dir=output_dir,
         )
-        mols_to_image(results, query_name=self.query.name, num_of_mols=50)
+        mols_to_image(
+            results,
+            query_name=self.query.name,
+            num_of_mols=50,
+            output_dir=output_dir,
+        )
 
         return None
+
+    @staticmethod
+    def _collect_rdkit_mols(results: list, mols: dict):
+        """
+        Return the aligned RDKit molecules for the ranked results in order.
+
+        Parameters
+        ----------
+        results: list
+            Sorted results from the search.
+        mols: dict
+            Dictionary of Molecule objects keyed by RegID.
+
+        Returns
+        -------
+        list
+            RDKit Mol objects in the same order as results.
+        """
+        return [mols[result[0]].mol for result in results]
 
     def align_and_score_vector_matches(
         self, database_by_regid: dict

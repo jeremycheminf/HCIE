@@ -6,6 +6,10 @@ of Oxford for the discovery of novel aromatic heterocyclic bioisosteres. **HCIE*
 replacements using shape and electrostatic similarity (ESP) to a query molecule. It supports one-vector and 
 two-vector (hash-based) alignments, and uses an RDKit-based backend and parallel processing for scalability.
 
+> **Fork note:** This repository is a fork of the original [BrennanGroup/HCIE](https://github.com/BrennanGroup/HCIE)
+> project with workflow enhancements, including configurable output directories and an RDKit-only return option for
+> programmatic use.
+
 ---
 
 ## 🔍 Overview
@@ -90,9 +94,47 @@ search = DatabaseSearch('<INSERT SMILES HERE>', name='<INSERT NAME HERE>')
 search.search()
 ```
 
+You can optionally control where outputs are written (or skip writing entirely) via the new `output_dir`,
+`write_files`, and `return_rdkit_mols` options:
+
+```aiignore
+from hcie import DatabaseSearch
+
+# Write results to a custom folder
+search = DatabaseSearch(
+    '<INSERT SMILES HERE>',
+    name='<INSERT NAME HERE>',
+    output_dir='C:/path/to/results'
+)
+search.search()
+
+# Return RDKit molecules only (no file output)
+search = DatabaseSearch(
+    '<INSERT SMILES HERE>',
+    name='<INSERT NAME HERE>',
+    write_files=False,
+    return_rdkit_mols=True,
+)
+rdkit_mols = search.search()
+```
+
+### CLI usage
+
+You can also access these options from the command line:
+
+```bash
+python -m hcie.main "<INSERT SMILES HERE>" --name "<INSERT NAME HERE>" --output-dir "C:/path/to/results"
+```
+
+To skip file output (and optionally count returned RDKit molecules):
+
+```bash
+python -m hcie.main "<INSERT SMILES HERE>" --name "<INSERT NAME HERE>" --no-write --return-rdkit-mols
+```
+
 This will start a search, which will take anywhere from 4 to 15 minutes depending on the search type (one-vector 
 searches tend to take longer, as a larger number of probe ligands are explored). The results 
-will be deposited in a directory NAME_hcie_results, with the following structure:
+will be deposited in a directory NAME_hcie_results by default (or your `output_dir` if provided), with the following structure:
 ```markdown
 ├── NAME_hcie_results
 │   ├── NAME_aligned_results.sdf
