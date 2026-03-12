@@ -170,21 +170,40 @@ class DatabaseSearch:
     @staticmethod
     def _collect_rdkit_mols(results: list, mols: dict):
         """
-        Return the aligned RDKit molecules for the ranked results in order.
-
+        Return the aligned RDKit molecules for the ranked results in order, with scoring information attached.
+    
         Parameters
         ----------
         results: list
             Sorted results from the search.
         mols: dict
             Dictionary of Molecule objects keyed by RegID.
-
+    
         Returns
         -------
         list
-            RDKit Mol objects in the same order as results.
+            RDKit Mol objects in the same order as results, with scoring data as molecule properties.
         """
-        return [mols[result[0]].mol for result in results]
+        from rdkit import Chem
+        
+        rdkit_mols = []
+        for result in results:
+            regid = result[0]
+            total_score = result[1]
+            shape_score = result[2]
+            esp_score = result[3]
+            
+            mol = mols[regid].mol
+            
+            # Attach scoring information as molecule properties
+            mol.SetDoubleProp('total_score', total_score)
+            mol.SetDoubleProp('shape_score', shape_score)
+            mol.SetDoubleProp('esp_score', esp_score)
+            mol.SetProp('regid', regid)
+            
+            rdkit_mols.append(mol)
+        
+        return rdkit_mols
 
     def align_and_score_vector_matches(
         self, database_by_regid: dict
